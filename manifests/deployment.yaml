@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigee-exporter-deployment
+  labels:
+    app: apigee-prometheus-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigee-prometheus-exporter
+  template:
+    metadata:
+      labels:
+        app: apigee-prometheus-exporter
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+    spec:
+      containers:
+      - name: apigee-prometheus-exporter
+        image: insert-registry-here
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+          - name: APIGEE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: apigee-monitoring-credentials
+                key: username
+          - name: APIGEE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: apigee-monitoring-credentials
+                key: password
+      restartPolicy: Always
